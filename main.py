@@ -27,9 +27,25 @@ def index(link):
             abort(404)
         full_link = f"https://{link}" if not link.startswith(('http://', 'https://')) else link
         while True: 
-            response = client.head(full_link)
+
+            try:
+                response = client.head(full_link)
+            except httpx.ConnectError as e:
+                print("HEAD 连接错误:", e)
+            except httpx.RequestError as e:
+                print("HEAD 请求错误:", e)
+            except Exception as e:
+                print("HEAD 未知错误:", e)
+            
             if 'Location' not in response.headers:
-                return client.get(full_link, timeout=10)
+                try:
+                    response = client.get(full_link, timeout=10)
+                except httpx.ConnectError as e:
+                    print("GET 连接错误:", e)
+                except httpx.RequestError as e:
+                    print("GET 请求错误:", e)
+                except Exception as e:
+                    print("GET 未知错误:", e)
             else:
                 full_link = response.headers['Location']
     
