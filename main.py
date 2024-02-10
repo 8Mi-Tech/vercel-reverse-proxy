@@ -5,7 +5,7 @@ import httpx
 app = Flask(__name__)
 cache = Cache(app)
 
-Rootlink = "https://vercel-proxy.zkitefly.eu.org"  # 更改为你的实际站点根链接
+Rootlink = "https://rpdl-vercel.8mi.edu.pl"  # 更改为你的实际站点根链接
 
 app.config['CACHE_TYPE'] = 'simple'
 cache.init_app(app)
@@ -17,10 +17,14 @@ def index(link):
     response = httpx.head(full_link)
     
     if 'Location' not in response.headers:
-        return redirect(Rootlink + '/p/' + link)
+        return redirect(Rootlink + link)
     else:
         location = response.headers['Location']
-        return redirect(Rootlink + '/' + location)
+        # 处理重定向链上的连续重定向
+        while location.startswith(('http://', 'https://')):
+            response = httpx.head(location)
+            location = response.headers.get('Location', '/')  # 如果没有 Location 头，则将 location 设置为根路径
+        return redirect(Rootlink + location)
 
 if __name__ == "__main__":
     app.run()
