@@ -35,27 +35,8 @@ def index(link):
             request_error_output("HEAD","Unknown",e)
         
         if 'Location' not in head_response.headers:
-            print(f'GET Connection：{full_link}')
-            try:
-                response_get = httpx.get(full_link, timeout=10)
-                # 生成流式响应
-                def generate():
-                    for chunk in response_get.iter_bytes():
-                        yield chunk
-                
-                # 构造包含HEAD信息的响应
-                response = Response(generate(), mimetype='application/octet-stream')
-                # 添加HEAD请求的响应头部信息到响应中
-                for header, value in head_response.headers.items():
-                    response.headers[header] = value
-                return response
-            except httpx.ConnectError as e:
-                request_error_output("GET","Connect",e)
-            except httpx.RequestError as e:
-                request_error_output("GET","Request",e)
-            except Exception as e:
-                request_error_output("GET","Unknown",e)
-            break
+            head_response.headers['Location'] = f'https://rpdl-vercel.8mi.edu.pl/{full_link}'
+            return head_response
         else:
             full_link = head_response.headers['Location']
 
