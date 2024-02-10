@@ -27,7 +27,7 @@ def index(link):
             abort(404)
         full_link = f"https://{link}" if not link.startswith(('http://', 'https://')) else link
         while True: 
-
+            print(f'HEAD Connection：{full_link}')
             try:
                 response = client.head(full_link)
             except httpx.ConnectError as e:
@@ -38,6 +38,7 @@ def index(link):
                 request_error_output("HEAD","Unknown",e)
             
             if 'Location' not in response.headers:
+                print(f'GET Connection：{full_link}')
                 try:
                     response = client.get(full_link, timeout=10)
                 except httpx.ConnectError as e:
@@ -50,7 +51,7 @@ def index(link):
                 full_link = response.headers['Location']
     
 def request_error_output(request_type, error_type, error_message):
-    print(f'{request_type}/{error_type} Error：{error_message}')
+    print(f'{request_type} / {error_type} Error：{error_message}')
     abort(500)
 
 if __name__ == "__main__":
