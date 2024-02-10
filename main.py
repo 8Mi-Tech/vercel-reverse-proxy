@@ -1,7 +1,7 @@
 import os
 import httpx
 from flask_caching import Cache
-from flask import Flask, redirect, jsonify
+from flask import Flask
 
 app = Flask(__name__)
 cache = Cache(app)
