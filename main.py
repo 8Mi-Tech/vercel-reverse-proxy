@@ -22,15 +22,16 @@ set_dns(custom_dns)
 @app.route('/<path:link>')
 @cache.cached(timeout=300)  # 设置缓存过期时间为 300 秒（5 分钟）
 def index(link):
-    if link == 'favicon.ico':
-        abort(404)
-    full_link = f"https://{link}" if not link.startswith(('http://', 'https://')) else link
-    while True: 
-        response = httpx.head(full_link)
-        if 'Location' not in response.headers:
-            return httpx.get(full_link, timeout=10)
-        else:
-            full_link = response.headers['Location']
+    with httpx.Client() as client:
+        if link == 'favicon.ico':
+            abort(404)
+        full_link = f"https://{link}" if not link.startswith(('http://', 'https://')) else link
+        while True: 
+            response = client.head(full_link)
+            if 'Location' not in response.headers:
+                return client.get(full_link, timeout=10)
+            else:
+                full_link = response.headers['Location']
     
 if __name__ == "__main__":
     app.run()
