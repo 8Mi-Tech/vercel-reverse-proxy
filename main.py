@@ -5,7 +5,7 @@ import httpx
 app = Flask(__name__)
 cache = Cache(app)
 
-Rootlink = "https://rpdl-vercel.8mi.edu.pl"  # 更改为你的实际代理根链接
+Rootlink = "https://rpdl-vercel.8mi.edu.pl/"  # 注意末尾的斜杠，确保根链接以斜杠结尾
 
 app.config['CACHE_TYPE'] = 'simple'
 cache.init_app(app)
@@ -15,22 +15,21 @@ cache.init_app(app)
 def index(link):
     full_link = f"https://{link}" if not link.startswith(('http://', 'https://')) else link
     response = httpx.head(full_link)
-    
-    if 'Location' not in response.headers:
-        return redirect(Rootlink + link)
-    else:
+
+    if 'Location' in response.headers:
         location = response.headers['Location']
         # 处理重定向链上的连续重定向
         while location.startswith(('http://', 'https://')):
+            app.logger.info(f"Redirecting to: {location}")
             response = httpx.head(location)
-            location = response.headers.get('Location', '/')  # 如果没有 Location 头，则将 location 设置为根路径
-        return redirect(Rootlink + location)
-
-    if 'Location' not in response.headers:
-        return redirect(Rootlink + '/' + link)
+            if 'Location' in response.headers:
+                location = response.headers['Location']
+            else:
+                break  # 如果没有 Location 头，则退出循环
+        return redirect(f"{Rootlink}{location}")  # 在根链接和重定向链接之间添加斜杠
     else:
-        location = response.headers['Location']
-        return redirect(Rootlink + '/' + location)
+        app.logger.info(f"No 'Location' header found in response for link: {link}")
+        return redirect(f"{Rootlink}/{link}")  # 在根链接和路径之间添加斜杠
 
 if __name__ == "__main__":
     app.run()
