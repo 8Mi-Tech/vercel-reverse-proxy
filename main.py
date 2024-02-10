@@ -31,23 +31,27 @@ def index(link):
             try:
                 response = client.head(full_link)
             except httpx.ConnectError as e:
-                print("HEAD 连接错误:", e)
+                request_error_output("HEAD","Connect",e)
             except httpx.RequestError as e:
-                print("HEAD 请求错误:", e)
+                request_error_output("HEAD","Request",e)
             except Exception as e:
-                print("HEAD 未知错误:", e)
+                request_error_output("HEAD","Unknown",e)
             
             if 'Location' not in response.headers:
                 try:
                     response = client.get(full_link, timeout=10)
                 except httpx.ConnectError as e:
-                    print("GET 连接错误:", e)
+                    request_error_output("GET","Connect",e)
                 except httpx.RequestError as e:
-                    print("GET 请求错误:", e)
+                    request_error_output("GET","Request",e)
                 except Exception as e:
-                    print("GET 未知错误:", e)
+                    request_error_output("GET","Unknown",e)
             else:
                 full_link = response.headers['Location']
     
+def request_error_output(request_type, error_type, error_message):
+    print(f'{request_type}/{error_type} Error：{error_message}')
+    abort(500)
+
 if __name__ == "__main__":
     app.run()
