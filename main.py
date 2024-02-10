@@ -2,7 +2,7 @@ import os
 import httpx
 import socket
 from flask_caching import Cache
-from flask import Flask, abort
+from flask import Flask, abort, make_response, jsonify
 
 app = Flask(__name__)
 cache = Cache(app)
@@ -27,7 +27,7 @@ def index(link):
         while True: 
             print(f'HEAD Connection：{full_link}')
             try:
-                response = client.head(full_link)
+                response_head = client.head(full_link)
             except httpx.ConnectError as e:
                 request_error_output("HEAD","Connect",e)
             except httpx.RequestError as e:
@@ -35,10 +35,16 @@ def index(link):
             except Exception as e:
                 request_error_output("HEAD","Unknown",e)
             
-            if 'Location' not in response.headers:
+            if 'Location' not in response_head.headers:
                 print(f'GET Connection：{full_link}')
                 try:
-                    response = client.get(full_link, timeout=10)
+                    response_get = client.get(full_link, timeout=10, headers=response_head.headers)
+
+                    flask_response = make_response(response_get.content)
+                    flask_response.status_code = response_get.status_code
+                    for header, value in response.headers.items():
+                        flask_response.headers[header] = value
+                    return flask_response
                 except httpx.ConnectError as e:
                     request_error_output("GET","Connect",e)
                 except httpx.RequestError as e:
@@ -46,7 +52,7 @@ def index(link):
                 except Exception as e:
                     request_error_output("GET","Unknown",e)
             else:
-                full_link = response.headers['Location']
+                full_link = response_head.headers['Location']
     
 def request_error_output(request_type, error_type, error_message):
     print(f'{request_type} / {error_type} Error：{error_message}')
