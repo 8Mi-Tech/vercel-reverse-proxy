@@ -38,7 +38,7 @@ def index(link):
             if 'Location' not in response_head.headers:
                 print(f'GET Connection：{full_link}')
                 try:
-                    response_get = client.get(full_link, timeout=10, headers=response_head.headers)
+                    response_get = client.get(full_link, timeout=10)
 
                     flask_response = make_response(response_get.content)
                     flask_response.status_code = response_get.status_code
