@@ -5,7 +5,7 @@ import httpx
 app = Flask(__name__)
 cache = Cache(app)
 
-Rootlink = "https://rpdl-vercel.8mi.edu.pl"  # 更改为你的实际站点根链接
+Rootlink = "https://rpdl-vercel.8mi.edu.pl"  # 更改为你的实际代理根链接
 
 app.config['CACHE_TYPE'] = 'simple'
 cache.init_app(app)
