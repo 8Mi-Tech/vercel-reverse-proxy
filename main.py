@@ -26,5 +26,11 @@ def index(link):
             location = response.headers.get('Location', '/')  # 如果没有 Location 头，则将 location 设置为根路径
         return redirect(Rootlink + location)
 
+    if 'Location' not in response.headers:
+        return redirect(Rootlink + '/' + link)
+    else:
+        location = response.headers['Location']
+        return redirect(Rootlink + '/' + location)
+
 if __name__ == "__main__":
     app.run()
