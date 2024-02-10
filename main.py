@@ -39,7 +39,7 @@ def index(link):
         if 'Location' not in head_response.headers:
             print(f'GET Connection：{full_link}')
             try:
-                response_get = httpx.get(full_link, timeout=10, stream=True)
+                response_get = httpx.get(full_link, timeout=10)
                 # 生成流式响应
                 def generate():
                     for chunk in response_get.iter_bytes():
