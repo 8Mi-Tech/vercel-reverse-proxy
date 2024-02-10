@@ -1,16 +1,14 @@
-import os
 import httpx
-import socket
 from flask_caching import Cache
 from flask import Flask, abort, Response
 
 app = Flask(__name__)
-cache = Cache(app)
+#cache = Cache(app)
 app.config['CACHE_TYPE'] = 'simple'
-cache.init_app(app)
+#cache.init_app(app)
 
 @app.route('/<path:link>')
-@cache.cached(timeout=300)  # 设置缓存过期时间为 300 秒（5 分钟）
+#@cache.cached(timeout=300)  # 设置缓存过期时间为 300 秒（5 分钟）
 def index(link):
     if link == 'favicon.ico':
         abort(404)
